@@ -59,6 +59,16 @@
             android:id="@+id/set_ndef_button"
             android:layout_below="@+id/ndef_text"
             android:layout_alignEnd="@+id/ndef_text" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="this is the NDEF message"
+            android:id="@+id/ndefBytes"
+            android:layout_below="@+id/set_ndef_button"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="20dp" />
+
     </RelativeLayout>
 
 </RelativeLayout>

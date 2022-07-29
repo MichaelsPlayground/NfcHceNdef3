@@ -2,11 +2,14 @@ package de.androidcrypto.nfchcendef2;
 
 import android.content.Context;
 import android.content.Intent;
+import android.nfc.FormatException;
+import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigInteger;
@@ -109,28 +112,47 @@ public class myHostApduService extends HostApduService {
             (byte)0x04
     };
 
+    /*
     private NdefRecord NDEF_URI = new NdefRecord(
             NdefRecord.TNF_WELL_KNOWN,
             NdefRecord.RTD_TEXT,
             NDEF_ID,
             "Hello world!".getBytes(Charset.forName("UTF-8"))
     );
+    */
+
     //private byte[] NDEF_URI_BYTES = NDEF_URI.toByteArray();
-    private byte[] NDEF_URI_BYTES = NDEF_URI.toByteArray();
+    //private byte[] NDEF_URI_BYTES = NDEF_URI.toByteArray();
+    private byte[] NDEF_URI_BYTES = getNdefMessage("Hello world!");
     private byte[] NDEF_URI_LEN = BigInteger.valueOf(NDEF_URI_BYTES.length).toByteArray();
+
+    private byte[] getNdefMessage(String ndefData) {
+        if (ndefData.length() == 0) {
+            return new byte[0];
+        }
+        NdefMessage ndefMessage;
+        NdefRecord ndefRecord;
+        ndefRecord = NdefRecord.createTextRecord("en", ndefData);
+        ndefMessage = new NdefMessage(ndefRecord);
+        return ndefMessage.toByteArray();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (intent.hasExtra("ndefMessage")) {
+            /* old / org
             NDEF_URI = new NdefRecord(
                     NdefRecord.TNF_WELL_KNOWN,
                     NdefRecord.RTD_TEXT,
                     NDEF_ID,
                     intent.getStringExtra("ndefMessage").getBytes(Charset.forName("UTF-8"))
             );
-
             NDEF_URI_BYTES = NDEF_URI.toByteArray();
+            NDEF_URI_LEN = BigInteger.valueOf(NDEF_URI_BYTES.length).toByteArray();
+            */
+            // here we are using the NDEF message + record to create ndef data
+            NDEF_URI_BYTES = getNdefMessage(intent.getStringExtra("ndefMessage"));
             NDEF_URI_LEN = BigInteger.valueOf(NDEF_URI_BYTES.length).toByteArray();
 
             Context context = getApplicationContext();
@@ -141,7 +163,8 @@ public class myHostApduService extends HostApduService {
             toast.show();
         }
 
-        Log.i(TAG, "onStartCommand() | NDEF" + NDEF_URI.toString());
+        //Log.i(TAG, "onStartCommand() | NDEF" + NDEF_URI.toString());
+        Log.i(TAG, "onStartCommand() | NDEF" + new String(NDEF_URI_BYTES));
 
         //return 0;
         return START_STICKY;
@@ -229,13 +252,20 @@ public class myHostApduService extends HostApduService {
             System.arraycopy(NDEF_URI_BYTES, 0, response, start.length + NDEF_URI_LEN.length, NDEF_URI_BYTES.length);
             System.arraycopy(A_OKAY, 0, response, start.length + NDEF_URI_LEN.length + NDEF_URI_BYTES.length, A_OKAY.length);
 
-            Log.i(TAG, NDEF_URI.toString());
+            //Log.i(TAG, NDEF_URI.toString());
+            Log.i(TAG, new String(NDEF_URI_BYTES));
             Log.i(TAG, "NDEF_READ_BINARY_GET_NDEF triggered. Our Response: " + utils.bytesToHex(response));
 
             Context context = getApplicationContext();
             CharSequence text = "NDEF text has been sent to the reader!";
             int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+
+            // print the ndef message
+            text = utils.bytesToHex(NDEF_URI_BYTES);
+            toast = Toast.makeText(context, text, duration);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
 
