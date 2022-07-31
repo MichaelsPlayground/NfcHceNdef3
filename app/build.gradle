@@ -6,7 +6,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "de.androidcrypto.nfchcendef2"
+        applicationId "de.androidcrypto.nfchcendef3"
         minSdk 21
         targetSdk 32
         versionCode 1

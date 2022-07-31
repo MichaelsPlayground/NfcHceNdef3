@@ -1,10 +1,68 @@
-# NFC HCE NDEF Example 2
+# NFC HCE NDEF Example 3
+
+This app is NOT using the sample AID of the original project but the AID for NDEF messages
 
 source: https://github.com/justinribeiro/android-hostcardemulation-sample
 
-Visa-AID:   A0000000031010
+Org Sample AID: F0394148148100
 
-Sample AID: F0394148148100
+NDEF AID: D2760000850101
+
+Flow see: https://stackoverflow.com/questions/29122848/ndef-message-with-hce-android
+
+https://stackoverflow.com/questions/67329010/nfc-host-card-emulation-hce-on-android-not-working-on-particular-devices
+
+https://stackoverflow.com/questions/23155719/host-card-emulation-on-android-4-4-kitkat-and-above-with-nexus-5
+
+https://github.com/sfomuseum/android-nfc-clock/blob/master/app/src/main/java/org/sfomuseum/nfcclock/CardService.kt
+
+
+
+
+
+```plaintext
+<aid-group android:description="@string/aiddescription"
+        android:category="other">
+        <aid-filter android:name="F0394148148100" />
+        <aid-filter android:name="A0000000031010" />
+    </aid-group>
+```
+
+ORG apduservice.xml
+```plaintext
+    <aid-group android:description="@string/aiddescription"
+        android:category="other">
+        <!-- Visa Proximity Payment System Environment - PPSE (2PAY.SYS.DDF01) -->
+        <aid-filter android:name="325041592E5359532E4444463031" />
+        <!-- VISA Debit/Credit (Classic)  -->
+        <aid-filter android:name="A0000000031010" />
+        <!-- VISA Credit -->
+        <aid-filter android:name="A000000003101001" />
+        <!-- VISA Debit -->
+        <aid-filter android:name="A000000003101002" />
+        <!-- VISA Electron (Debit) -->
+        <aid-filter android:name="A0000000032010" />
+        <!-- V PAY -->
+        <aid-filter android:name="A0000000032020" />
+        <!-- VISA Interlink -->
+        <aid-filter android:name="A0000000033010" />
+        <!-- MasterCard PayPass -->
+        <aid-filter android:name="A00000000401" />
+        <!-- MasterCard Credit -->
+        <aid-filter android:name="A0000000041010" />
+        <!-- American Express -->
+        <aid-filter android:name="A000000025" />
+        <!-- BRADESCO -->
+        <aid-filter android:name="F0000000030001" />
+        <!-- Sample for the demo application -->
+        <aid-filter android:name="F0394148148100" />
+        <!-- NFC type 4 NDEF -->
+        <aid-filter android:name="D2760000850101" />
+    </aid-group>
+```
+
+
+
 
 # Android Host Card Emulation of a NFC Forum Type-4 tag
 

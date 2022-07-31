@@ -1,20 +1,16 @@
-package de.androidcrypto.nfchcendef2;
+package de.androidcrypto.nfchcendef3;
 
 import android.content.Context;
 import android.content.Intent;
-import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigInteger;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 
 /**
  * Created by justin.ribeiro on 10/27/2014.
@@ -32,15 +28,18 @@ public class myHostApduService extends HostApduService {
     // We use the default AID from the HCE Android documentation
     // https://developer.android.com/guide/topics/connectivity/nfc/hce.html
     //
-    // Ala... <aid-filter android:name="F0394148148100" />
+    // Ala... <aid-filter android:name="D2 76 00 00 85 01 01" />
     //
+
+    // data changed to these values from https://github.com/sfomuseum/android-nfc-clock/blob/master/app/src/main/java/org/sfomuseum/nfcclock/CardService.kt
+
     private static final byte[] APDU_SELECT = {
             (byte)0x00, // CLA	- Class - Class of instruction
             (byte)0xA4, // INS	- Instruction - Instruction code
             (byte)0x04, // P1	- Parameter 1 - Instruction parameter 1
             (byte)0x00, // P2	- Parameter 2 - Instruction parameter 2
             (byte)0x07, // Lc field	- Number of bytes present in the data field of the command
-            (byte)0xF0, (byte)0x39, (byte)0x41, (byte)0x48, (byte)0x14, (byte)0x81, (byte)0x00, // NDEF Tag Application name
+            (byte)0xD2, (byte)0x76, (byte)0x00, (byte)0x00, (byte)0x85, (byte)0x01, (byte)0x01, // NDEF Tag Application name
             (byte)0x00  // Le field	- Maximum number of bytes expected in the data field of the response to the command
     };
 
@@ -66,16 +65,16 @@ public class myHostApduService extends HostApduService {
     private boolean READ_CAPABILITY_CONTAINER_CHECK = false;
 
     private static final byte[] READ_CAPABILITY_CONTAINER_RESPONSE = {
-            (byte)0x00, (byte)0x0F, // CCLEN length of the CC file
+            (byte)0x00, (byte)0x11, // CCLEN length of the CC file
             (byte)0x20, // Mapping Version 2.0
-            (byte)0x00, (byte)0x3B, // MLe maximum 59 bytes R-APDU data size
-            (byte)0x00, (byte)0x34, // MLc maximum 52 bytes C-APDU data size
+            (byte)0xFF, (byte)0xFFB, // MLe maximum // 59 bytes R-APDU data size
+            (byte)0xFF, (byte)0xFF, // MLc maximum // 52 bytes C-APDU data size
             (byte)0x04, // T field of the NDEF File Control TLV
             (byte)0x06, // L field of the NDEF File Control TLV
             (byte)0xE1, (byte)0x04, // File Identifier of NDEF file
-            (byte)0x00, (byte)0x32, // Maximum NDEF file size of 50 bytes
+            (byte)0xFF, (byte)0xFE, // Maximum NDEF file size of 50 bytes
             (byte)0x00, // Read access without any security
-            (byte)0x00, // Write access without any security
+            (byte)0xFF, // Write access without any security
             (byte)0x90, (byte)0x00 // A_OKAY
     };
 
@@ -105,6 +104,11 @@ public class myHostApduService extends HostApduService {
     private static final byte[] A_OKAY = {
             (byte)0x90,  // SW1	Status byte 1 - Command processing status
             (byte)0x00   // SW2	Status byte 2 - Command processing qualifier
+    };
+
+    private static final byte[] A_ERROR = {
+            (byte)0x6A,  // SW1	Status byte 1 - Command processing status
+            (byte)0x82   // SW2	Status byte 2 - Command processing qualifier
     };
 
     private static final byte[] NDEF_ID = {
@@ -155,12 +159,13 @@ public class myHostApduService extends HostApduService {
             NDEF_URI_BYTES = getNdefMessage(intent.getStringExtra("ndefMessage"));
             NDEF_URI_LEN = BigInteger.valueOf(NDEF_URI_BYTES.length).toByteArray();
 
+            /* as there is a timer we should not do a toast
             Context context = getApplicationContext();
             CharSequence text = "Your NDEF text has been set!";
             int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(context, text, duration);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
+            toast.show();*/
         }
 
         //Log.i(TAG, "onStartCommand() | NDEF" + NDEF_URI.toString());
@@ -229,8 +234,9 @@ public class myHostApduService extends HostApduService {
             System.arraycopy(A_OKAY, 0, response, start.length + NDEF_URI_LEN.length, A_OKAY.length);
 
             Log.i(TAG, response.toString());
+            Log.i(TAG, "NDEF_READ_BINARY_NLEN triggered. NDEF_URI_LEN (hex): " + utils.bytesToHex(NDEF_URI_LEN));
+            Log.i(TAG, "NDEF_READ_BINARY_NLEN triggered. Complete len (dec): " + response.length);
             Log.i(TAG, "NDEF_READ_BINARY_NLEN triggered. Our Response: " + utils.bytesToHex(response));
-
             return response;
         }
 
@@ -284,4 +290,5 @@ public class myHostApduService extends HostApduService {
     public void onDeactivated(int reason) {
         Log.i(TAG, "onDeactivated() Fired! Reason: " + reason);
     }
+
 }

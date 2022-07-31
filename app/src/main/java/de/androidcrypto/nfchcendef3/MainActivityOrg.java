@@ -1,16 +1,20 @@
-package de.androidcrypto.nfchcendef2;
+package de.androidcrypto.nfchcendef3;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.ActionBar;
-
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivityOrg extends AppCompatActivity {
     private static final String TAG = "JDR HostCardEmulation";
+
+    // AID is setup in apduservice.xml
+    // original AID: F0394148148100
+    // new AID: D2760000850101
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
